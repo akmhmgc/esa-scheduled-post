@@ -1,9 +1,9 @@
-const hoge = () => {
-  const date = new Date('2022/03/22');
+const isHoliday = () => {
+  const date = new Date();
   const id = 'ja.japanese#holiday@group.v.calendar.google.com'
   const cal = CalendarApp.getCalendarById(id);
   const events = cal.getEventsForDay(date);
-  if (events.length) console.log('休みです');
+  if (events.length) return true;
 }
 
 class EsaApi {
@@ -21,7 +21,9 @@ class EsaApi {
     const url = EsaApi.domain_ + pathQuery;
     const params = {
       contentType: 'application/json; charset=utf-8',
-      headers: { 'Authorization': `Bearer ${this.accessToken_}` },
+      headers: {
+        'Authorization': `Bearer ${this.accessToken_}`
+      },
       method: method,
       payload: body ? JSON.stringify(body) : null,
       muteHttpExceptions: true
@@ -36,16 +38,18 @@ EsaApi.domain_ = 'https://api.esa.io';
 
 
 const main = () => {
+  if (isHoliday()) return;
+
   const TEAM_NAME = PropertiesService.getScriptProperties().getProperty("TEAM_NAME");
   const TOKEN = PropertiesService.getScriptProperties().getProperty("TOKEN");
   const POST = {
-    "post":{
-       "category": "Technology Unit/Weekly KPT/2022",
-       "wip":true,
-       "template_post_id":3
+    "post": {
+      "category": "Technology Unit/Weekly KPT/2022",
+      "wip": true,
+      "template_post_id": 3
     }
- }
+  }
 
-  const esa = new EsaApi(TEAM_NAME, TOKEN, debugMode = true);
+  const esa = new EsaApi(TEAM_NAME, TOKEN);
   esa.postArticle(POST);
 }
